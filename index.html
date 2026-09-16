@@ -637,8 +637,8 @@
       <section id="transitionScreen" class="panel hidden">
         <h3>Tipo de bloqueo</h3>
         <div class="transition-buttons-row">
-          <button type="button" class="trans-btn" data-val="transicion">Transición</button>
-          <button type="button" class="trans-btn" data-val="estatico">Estático</button>
+          <button type="button" class="trans-btn" data-val="transicion">TRANSICIÓN</button>
+          <button type="button" class="trans-btn" data-val="estatico">ESTÁTICO</button>
         </div>
       </section>
 
@@ -1051,7 +1051,7 @@
       document.querySelectorAll(".trans-btn").forEach(btn => {
         btn.onclick = (e) => {
           const val = e.currentTarget.getAttribute("data-val");
-          rAct.transition_screen = val === "transicion" ? "Transición" : "Estático";
+          rAct.transition_screen = val === "transicion" ? "TRANSICIÓN" : "ESTÁTICO";
           posarJugadorsImplicats(false);
         };
       });
@@ -1413,16 +1413,32 @@
           if (compRes && compRes.length > 0) compUuid = compRes[0].uuid;
         }
 
-        const gamePayload = {
-          home_team_uuid: homeUuid,
-          away_team_uuid: awayUuid,
-          date: dateVal,
-          venue: courtUuid,
-          round: roundVal,
-          competition: compUuid
-        };
+        // dateVal ve de l'input amb format: "2026-09-16T20:30"
+let formattedDate = dateVal;
+
+if (dateVal) {
+  // Separem la data i l'hora
+  const [datePart, timePart] = dateVal.split('T');
+  if (datePart && timePart) {
+    const [year, month, day] = datePart.split('-');
+    // Reconstruïm en format DD/MM/YYYY HH:mm
+    formattedDate = `${day}/${month}/${year} ${timePart}`;
+  }
+}
+
+const gamePayload = {
+  home_team_uuid: homeUuid,
+  away_team_uuid: awayUuid,
+  date: formattedDate, // Utilitzem la data convertida
+  venue: courtUuid,
+  round: roundVal,
+  competition: compUuid
+};
+
+        console.log(gamePayload);
 
         const gameRes = await upsertEntity('games', 'home_team_uuid,away_team_uuid,date', gamePayload);
+        console.log(gameRes);
         if (gameRes && gameRes.length > 0) {
           currentGameId = gameRes[0].uuid;
         }
