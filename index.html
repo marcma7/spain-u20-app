@@ -644,29 +644,31 @@
 
       <!-- 3. Secció Jugadors Implicats -->
       <section id="involvedPlayers" class="panel hidden">
-        <h3>Jugadores implicados</h3>
-        
-        <div class="involved-columns-container">
-          <div class="involved-column">
-            <h4>Manejador</h4>
-            <div id="handlerButtons" class="players-stack"></div>
-          </div>
+  <h3>Jugadores implicados</h3>
 
-          <div class="involved-column">
-            <h4>Bloqueador</h4>
-            <div id="screenerButtons" class="players-stack"></div>
+  <div class="involved-columns-container">
+    <!-- Columna 1: Manejador (sempre es veu quan la secció està activa) -->
+    <div class="involved-column">
+      <h4>Manejador</h4>
+      <div id="handlerButtons" class="players-stack"></div>
+    </div>
 
-            <div class="tech-details-spacer"></div>
+    <!-- Columna 2: Bloquejador + Detalls tècnics (s'amaga sencera si no és PnR) -->
+    <div class="involved-column" id="screenerColumn">
+      <h4>Bloqueador</h4>
+      <div id="screenerButtons" class="players-stack"></div>
 
-            <div class="tech-details-grid">
-              <button type="button" class="tech-btn">FLIP</button>
-              <button type="button" class="tech-btn">SLIP</button>
-              <button type="button" class="tech-btn">REPICK</button>
-              <button type="button" class="tech-btn">NADA</button>
-            </div>
-          </div>
-        </div>
-      </section>
+      <div class="tech-details-spacer"></div>
+
+      <div class="tech-details-grid">
+        <button type="button" class="tech-btn">FLIP</button>
+        <button type="button" class="tech-btn">SLIP</button>
+        <button type="button" class="tech-btn">REPICK</button>
+        <button type="button" class="tech-btn">NADA</button>
+      </div>
+    </div>
+  </div>
+</section>
 
       <!-- 4. Tàctica defensiva -->
       <section id="defense" class="panel hidden">
@@ -978,52 +980,82 @@
       renderInvolvedButtons();
     }
 
+
     function renderInvolvedButtons() {
-      const players = teamWithPossession === 1 ? homePlayers : awayPlayers;
-      const onCourt = teamWithPossession === 1 ? homeInCourt : awayInCourt;
+  const players = teamWithPossession === 1 ? homePlayers : awayPlayers;
+  const onCourt = teamWithPossession === 1 ? homeInCourt : awayInCourt;
 
-      const handlerContainer = document.getElementById("handlerButtons");
-      if (handlerContainer) {
-        handlerContainer.innerHTML = "";
-        onCourt.forEach(idx => {
-          const player = players[idx];
-          if (!player) return;
-          const btn = document.createElement("button");
-          btn.textContent = `#${player.shirt_number || player.number}`;
-          btn.onclick = (e) => {
-            highlightButton(e.currentTarget);
-            rAct.handler_uuid = player.uuid;
-            checkIfPassToTactics();
-          };
-          handlerContainer.appendChild(btn);
-        });
-      }
+  const involvedPlayersContainer = document.getElementById("involvedPlayers");
+  const screenerColumn = document.getElementById("screenerColumn");
 
-      const screenerContainer = document.getElementById("screenerButtons");
-      if (screenerContainer) {
-        screenerContainer.innerHTML = "";
-        onCourt.forEach(idx => {
-          const player = players[idx];
-          if (!player) return;
-          const btn = document.createElement("button");
-          btn.textContent = `#${player.shirt_number || player.number}`;
-          btn.onclick = (e) => {
-            highlightButton(e.currentTarget);
-            rAct.roller_uuid = player.uuid;
-            checkIfPassToTactics();
-          };
-          screenerContainer.appendChild(btn);
-        });
-      }
+  // 1. Controlar si tota la secció s'ha de mostrar en general
+  const shouldShowInvolved = rAct.focus && rAct.focus !== 'Altres'; // Adapta-ho a la teva lògica
 
-      document.querySelectorAll("#involvedPlayers .tech-btn").forEach(btn => {
+  if (!shouldShowInvolved) {
+    if (involvedPlayersContainer) involvedPlayersContainer.classList.add("hidden");
+    return;
+  }
+
+  if (involvedPlayersContainer) involvedPlayersContainer.classList.remove("hidden");
+
+  // 2. Renderitzar el manejador (sempre visible)
+  const handlerContainer = document.getElementById("handlerButtons");
+  if (handlerContainer) {
+    handlerContainer.innerHTML = "";
+    onCourt.forEach(idx => {
+      const player = players[idx];
+      if (!player) return;
+      const btn = document.createElement("button");
+      btn.textContent = `#${player.shirt_number || player.number}`;
+      btn.onclick = (e) => {
+        highlightButton(e.currentTarget);
+        rAct.handler_uuid = player.uuid;
+        checkIfPassToTactics();
+      };
+      handlerContainer.appendChild(btn);
+    });
+  }
+
+  // 3. Comprovar si el focus comença per PnR
+  const isPnR = rAct.focus && typeof rAct.focus === 'string' && rAct.focus.startsWith('PnR');
+
+  // ** CLAU **: Mostrar o amagar tota la columna de la dreta (Títol + Bloquejador + Detalls)
+  if (screenerColumn) {
+    screenerColumn.style.display = isPnR ? "flex" : "none"; // Utilitza "flex" o "block" segons el teu CSS
+  }
+
+  const screenerContainer = document.getElementById("screenerButtons");
+  if (isPnR) {
+    if (screenerContainer) {
+      screenerContainer.innerHTML = "";
+      onCourt.forEach(idx => {
+        const player = players[idx];
+        if (!player) return;
+        const btn = document.createElement("button");
+        btn.textContent = `#${player.shirt_number || player.number}`;
         btn.onclick = (e) => {
           highlightButton(e.currentTarget);
-          rAct.technical_detail = e.currentTarget.textContent.trim();
+          rAct.roller_uuid = player.uuid;
           checkIfPassToTactics();
         };
+        screenerContainer.appendChild(btn);
       });
     }
+
+    document.querySelectorAll("#involvedPlayers .tech-btn").forEach(btn => {
+      btn.onclick = (e) => {
+        highlightButton(e.currentTarget);
+        rAct.technical_detail = e.currentTarget.textContent.trim();
+        checkIfPassToTactics();
+      };
+    });
+  } else {
+    // Si no és PnR, netegem valors residuals
+    if (screenerContainer) screenerContainer.innerHTML = "";
+    rAct.roller_uuid = null;
+    rAct.technical_detail = null;
+  }
+}
 
     function checkIfPassToTactics() {
       if (isPostReboundAction) {
