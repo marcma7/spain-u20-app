@@ -1,0 +1,2385 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>InGame Statistics - Spain U20</title>
+
+<style>
+  :root {
+    --bg-dark: #0f172a;
+    --panel-bg: #1e293b;
+    --card-bg: #334155;
+    --border-color: #475569;
+    --text-color: #f8fafc;
+    --text-muted: #94a3b8;
+    
+    --primary: #cc5500;
+    --primary-hover: #e65f00;
+    --success: #16a34a;
+    --info: #0284c7;
+    --danger: #dc2626;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--text-color);
+    margin: 0;
+    padding: 16px;
+    line-height: 1.5;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  /* MARCADOR / EQUIPS */
+  .scoreboard {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 20px;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .team-btn {
+    flex: 1;
+    padding: 18px;
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    background-color: var(--panel-bg);
+    color: var(--text-color);
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+  }
+
+  .team-btn:hover {
+    border-color: var(--primary);
+    transform: translateY(-2px);
+  }
+
+  /* PANELLS I TARGETES */
+  .panel {
+    background-color: var(--panel-bg);
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+  }
+
+  .panel h2, .panel h3 {
+    margin-top: 0;
+    margin-bottom: 16px;
+    color: var(--text-color);
+    font-weight: 600;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 8px;
+  }
+
+  .hidden {
+    display: none !important;
+  }
+
+  /* GRAELLES I GRUPS DE BOTONS */
+  .grid-buttons {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 12px;
+    margin-top: 12px;
+  }
+
+  .btn-group {
+    display: flex;
+    gap: 8px;
+    margin: 12px 0;
+    flex-wrap: wrap;
+  }
+
+  /* ESTILS DE BOTONS */
+  button {
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    padding: 12px 18px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+
+  button:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-1px);
+  }
+
+  button:active {
+    transform: translateY(0);
+  }
+
+  button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  /* JUGADORS A PISTA / RESUM */
+  .court-players {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--panel-bg);
+    padding: 14px 20px;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    border: 1px solid var(--border-color);
+  }
+
+  .court-group {
+    font-size: 0.95rem;
+  }
+
+  .court-group strong {
+    color: var(--primary);
+  }
+
+  /* COLUMNES DE SUBSTITUCIONS */
+  .subs-columns {
+    display: flex;
+    gap: 24px;
+  }
+
+  .sub-column {
+    flex: 1;
+    background: var(--card-bg);
+    padding: 16px;
+    border-radius: 8px;
+  }
+
+  .sub-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 8px;
+    background: rgba(0,0,0,0.15);
+    padding: 6px 10px;
+    border-radius: 6px;
+  }
+
+  /* FORMULARIS I INPUTS */
+  .form-container {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    max-width: 650px;
+  }
+
+  .form-row {
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+  }
+
+  .flex-1 { flex: 1; }
+  .flex-3 { flex: 3; }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .form-group label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+
+  .form-group input {
+    padding: 10px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-dark);
+    color: #fff;
+    font-size: 0.95rem;
+  }
+
+  .form-group input:focus {
+    outline: none;
+    border-color: var(--primary);
+  }
+
+  .color-picker-input {
+    padding: 2px !important;
+    height: 42px;
+    cursor: pointer;
+  }
+
+  .actions-row {
+    display: flex;
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  /* LLISTA DE PARTITS */
+  .games-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 250px;
+    overflow-y: auto;
+  }
+
+  .game-item {
+    padding: 12px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    cursor: pointer;
+    background-color: var(--card-bg);
+    transition: background 0.2s ease;
+  }
+
+  .game-item:hover {
+    background-color: var(--border-color);
+  }
+
+  .game-item.selected {
+    background-color: var(--primary) !important;
+    border-color: var(--primary-hover);
+    font-weight: bold;
+  }
+
+  .attack-focus-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .focus-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    width: 100%;
+  }
+
+  .other-row .pos-1 { grid-column: 1; }
+  .other-row .pos-3 { grid-column: 3; }
+  .other-row .pos-5 { grid-column: 5; }
+
+  .transition-buttons-row {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .transition-buttons-row .trans-btn {
+    flex: 1;
+    padding: 14px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    text-align: center;
+  }
+
+  .involved-columns-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    width: 100%;
+  }
+
+  .involved-column {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .involved-column h4 {
+    margin-top: 0;
+    margin-bottom: 8px;
+    font-size: 1rem;
+    text-align: center;
+  }
+
+  .players-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .players-stack button {
+    width: 100%;
+    padding: 10px;
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+
+  .tech-details-spacer {
+    height: 16px;
+  }
+
+  .tech-details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .tech-btn {
+    width: 100%;
+    padding: 10px 4px;
+    font-size: 0.85rem;
+    font-weight: bold;
+  }
+
+  button.selected-btn {
+    background-color: var(--info, #0284c7) !important;
+    color: #ffffff !important;
+    border: 2px solid #ffffff !important;
+    font-weight: bold !important;
+    box-shadow: 0 0 6px rgba(2, 132, 199, 0.5) !important;
+  }
+
+  #pnrDefenseButtons, 
+  .pnr-defense-grid, 
+  .defense-buttons-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  #pnrDefenseButtons button,
+  .pnr-defense-grid button,
+  .defense-buttons-grid button {
+    width: 100% !important;
+    display: block !important;
+    box-sizing: border-box !important;
+    padding: 12px 8px !important;
+    text-align: center !important;
+  }
+
+  #defenseButtons {
+    display: grid !important;
+    grid-template-columns: repeat(5, 1fr) !important;
+    gap: 8px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  #defenseButtons button {
+    width: 100% !important;
+    padding: 12px 8px !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
+  }
+
+  #nextAction .grid-buttons {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 8px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  #nextAction .grid-buttons button {
+    width: 100% !important;
+    padding: 12px 6px !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
+    font-size: 0.85rem !important;
+  }
+
+  .final-questions-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 16px !important;
+    margin-bottom: 16px !important;
+    width: 100% !important;
+  }
+
+  .final-question-card {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+
+  .question-label {
+    font-size: 0.85rem !important;
+    color: var(--text-muted) !important;
+    font-weight: 600 !important;
+  }
+
+  .binary-btn-group {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+    width: 100% !important;
+  }
+
+  .binary-btn-group button {
+    width: 100% !important;
+    padding: 12px 0 !important;
+    text-align: center !important;
+    font-weight: bold !important;
+    box-sizing: border-box !important;
+  }
+
+  .rebound-count-wrapper {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    margin-bottom: 16px !important;
+    width: 100% !important;
+  }
+
+  .reb-full-width-group {
+    display: grid !important;
+    grid-template-columns: repeat(6, 1fr) !important;
+    gap: 8px !important;
+    width: 100% !important;
+  }
+
+  .reb-full-width-group button {
+    width: 100% !important;
+    padding: 12px 0 !important;
+    text-align: center !important;
+    font-weight: bold !important;
+    box-sizing: border-box !important;
+  }
+
+  button.player-in-court {
+    background-color: var(--success, #16a34a) !important;
+    color: #ffffff !important;
+    font-weight: bold !important;
+    border: 2px solid #22c55e !important;
+  }
+
+  .rebound-container {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 20px !important;
+    width: 100% !important;
+  }
+
+  .rebound-card {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+    width: 100% !important;
+  }
+
+  .full-width-btn-group {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+    width: 100% !important;
+  }
+
+  .full-width-btn-group.grid-2col {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  .full-width-btn-group.grid-3col {
+    grid-template-columns: 1fr 1fr 1fr !important;
+  }
+
+  .full-width-btn-group button {
+    width: 100% !important;
+    padding: 12px 0 !important;
+    text-align: center !important;
+    font-weight: bold !important;
+    box-sizing: border-box !important;
+  }
+
+
+#foulInformation .grid-buttons {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 8px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  #foulInformation .grid-buttons button {
+    width: 100% !important;
+    padding: 12px 6px !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
+    font-size: 0.85rem !important;
+  }
+</style>
+</head>
+<body>
+
+  <!-- Marcador d'equips -->
+  <header id="scoreboardHeader" class="scoreboard hidden">
+    <button id="homeTeamBtn" class="team-btn">LOCAL</button>
+    <button id="awayTeamBtn" class="team-btn">VISITANT</button>
+  </header>
+
+  <main class="container">
+
+    <!-- PANTALLA CREACIÓ / SELECCIÓ DE PARTIT -->
+    <section id="newGameInfoLayout" class="panel">
+      <h2>Informació del Partit</h2>
+
+      <div class="form-container">
+        <!-- Fila Equip Local + Color -->
+        <div class="form-row">
+          <div class="form-group flex-3">
+            <label for="homeTeamInput">Equip Local:</label>
+            <input type="text" id="homeTeamInput" placeholder="Nom equip local" />
+          </div>
+          <div class="form-group flex-1">
+            <label for="colorHome">Color Local:</label>
+            <input type="color" id="colorHome" value="#ff0000" class="color-picker-input" />
+          </div>
+        </div>
+
+        <!-- Fila Equip Visitant + Color -->
+        <div class="form-row">
+          <div class="form-group flex-3">
+            <label for="awayTeamInput">Equip Visitant:</label>
+            <input type="text" id="awayTeamInput" placeholder="Nom equip visitant" />
+          </div>
+          <div class="form-group flex-1">
+            <label for="colorAway">Color Visitant:</label>
+            <input type="color" id="colorAway" value="#0000ff" class="color-picker-input" />
+          </div>
+        </div>
+
+        <!-- Fila Competició + Jornada/Ronda -->
+        <div class="form-row">
+          <div class="form-group flex-1">
+            <label for="competition">Competició:</label>
+            <input type="text" id="competition" placeholder="Ex: Lliga Catalana" />
+          </div>
+          <div class="form-group flex-1">
+            <label for="round">Jornada / Ronda:</label>
+            <input type="text" id="round" placeholder="Ex: Jornada 5" />
+          </div>
+        </div>
+
+        <!-- Fila Pista + Data i Hora -->
+        <div class="form-row">
+          <div class="form-group flex-1">
+            <label for="court">Pista / Pavelló:</label>
+            <input type="text" id="court" placeholder="Nom del pavelló" />
+          </div>
+          <div class="form-group flex-1">
+            <label for="gameDate">Data i Hora:</label>
+            <input type="datetime-local" id="gameDate" />
+          </div>
+        </div>
+
+        <!-- Botons d'acció -->
+        <div class="actions-row">
+          <button onclick="resetGameForm()">Nou Partit</button>
+          <button onclick="confirmGameInfo()" style="background-color: #008cba;">Confirmar i Anar al Partit</button>
+        </div>
+      </div>
+
+      <hr style="margin: 20px 0; border-color: #444;" />
+
+      <h3>Partits Existents</h3>
+      <div id="allGamesList" class="games-list">
+        <!-- Es carregarà dinàmicament la llista de partits -->
+      </div>
+    </section>
+
+    <!-- PANTALLA INGAME (CONTENIDOR PRINCIPAL DEL PARTIT) -->
+    <div id="inGameLayout" class="hidden">
+
+      <!-- Quintets actuals a pista -->
+      <section class="court-players">
+        <div id="homeCourt" class="court-group"></div>
+        <div id="awayCourt" class="court-group"></div>
+        <button onclick="showAllSubstitutionThings()">Canvis</button>
+      </section>
+
+      <!-- 1. Sistemes / Focus -->
+      <section id="sets" class="panel hidden">
+        <h3>Focus d'atac</h3>
+        <div class="attack-focus-wrapper">
+          <div class="focus-row pnr-row">
+            <button type="button" class="set-btn">PnR +0</button>
+            <button type="button" class="set-btn">PnR +1</button>
+            <button type="button" class="set-btn">PnR +2</button>
+            <button type="button" class="set-btn">PnR +3</button>
+            <button type="button" class="set-btn">PnR 1-1</button>
+          </div>
+
+          <div class="focus-row other-row">
+            <button type="button" class="set-btn pos-1">FBK</button>
+            <button type="button" class="set-btn pos-3">OOB</button>
+            <button type="button" class="set-btn pos-5">ESP</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. Transició -->
+      <section id="transitionScreen" class="panel hidden">
+        <h3>Arriba en Transició?</h3>
+        <div class="transition-buttons-row">
+          <button type="button" class="trans-btn" data-val="transicion">Transición</button>
+          <button type="button" class="trans-btn" data-val="estatico">Estático</button>
+        </div>
+      </section>
+
+      <!-- 3. Secció Jugadors Implicats -->
+      <section id="involvedPlayers" class="panel hidden">
+        <h3>Jugadors Implicats</h3>
+        
+        <div class="involved-columns-container">
+          <div class="involved-column">
+            <h4>Handler</h4>
+            <div id="handlerButtons" class="players-stack"></div>
+          </div>
+
+          <div class="involved-column">
+            <h4>Roller / Bloquejador</h4>
+            <div id="screenerButtons" class="players-stack"></div>
+
+            <div class="tech-details-spacer"></div>
+
+            <div class="tech-details-grid">
+              <button type="button" class="tech-btn">FLIP</button>
+              <button type="button" class="tech-btn">SLIP</button>
+              <button type="button" class="tech-btn">REPICK</button>
+              <button type="button" class="tech-btn">NADA</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. Tàctica defensiva -->
+      <section id="defense" class="panel hidden">
+        <h3>Defensa PnR</h3>
+        <div id="defenseButtons" class="grid-buttons"></div>
+      </section>
+
+      <!-- 5. Següent acció -->
+      <section id="nextAction" class="panel hidden">
+        <h3>Següent Acció</h3>
+        <div class="grid-buttons">
+          <button class="next-btn">SHORT ROLL</button>
+          <button class="next-btn">DEEP ROLL</button>
+          <button class="next-btn">PASS +2</button>
+          <button class="next-btn">PASS +1</button>
+          <button class="next-btn">PULLUP</button>
+          <button class="next-btn">POP</button>
+          <button class="next-btn">OTHER</button>
+        </div>
+      </section>
+
+      <!-- 6. Informació Final de la possessió -->
+      <section id="finalInformation" class="panel hidden">
+        <h3>Resultat de l'Acció</h3>
+        
+        <div class="final-questions-grid">
+          <div class="final-question-card">
+            <span class="question-label">Avantatge Generat?</span>
+            <div class="binary-btn-group">
+              <button type="button" class="adv-btn">Sí</button>
+              <button type="button" class="adv-btn">No</button>
+            </div>
+          </div>
+
+          <div class="final-question-card">
+            <span class="question-label">Bona Selecció de Tir?</span>
+            <div class="binary-btn-group">
+              <button type="button" class="shot-btn">Sí</button>
+              <button type="button" class="shot-btn">No</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="rebound-count-wrapper">
+          <span class="question-label">Jugadors al Rebot:</span>
+          <div id="rebCountButtons" class="reb-full-width-group">
+            <button type="button" class="c-reb-btn">0</button>
+            <button type="button" class="c-reb-btn">1</button>
+            <button type="button" class="c-reb-btn">2</button>
+            <button type="button" class="c-reb-btn">3</button>
+            <button type="button" class="c-reb-btn">4</button>
+            <button type="button" class="c-reb-btn">5</button>
+          </div>
+        </div>
+
+        <div class="rebound-count-wrapper">
+          <span class="question-label">Resultado:</span>
+          <div class="grid-buttons">
+            <button class="res-btn">2+</button>
+            <button class="res-btn">2-</button>
+            <button class="res-btn">3+</button>
+            <button class="res-btn">3-</button>
+            <button class="res-btn" onclick="forcedTurnover()">TO</button>
+            <button class="res-btn" onclick="foul()">PF</button>
+            <button class="res-btn">NO END</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 7. Faltes -->
+      <section id="foulInformation" class="panel hidden">
+        <h3>Informació de la Falta</h3>
+        <div class="grid-buttons">
+          <button class="foul-btn">2+1</button>
+          <button class="foul-btn">3+1</button>
+          <button class="foul-btn">TIRS LLIURES</button>
+          <button class="foul-btn">FALTA SIN TIROS</button>
+        </div>
+
+<!-- Selecció del nombre de jugadors al rebot del tir lliure -->
+    <div id="reboundPeopleFt" class="hidden" style="margin-top: 16px;">
+      <span class="question-label" style="display: block; margin-bottom: 8px;">Quants jugadors van al rebot?</span>
+      <div class="full-width-btn-group grid-buttons">
+        <button type="button" class="reb-people-btn">0</button>
+        <button type="button" class="reb-people-btn">1</button>
+        <button type="button" class="reb-people-btn">2</button>
+        <button type="button" class="reb-people-btn">3</button>
+        <button type="button" class="reb-people-btn">4</button>
+        <button type="button" class="reb-people-btn">5</button>
+      </div>
+    </div>
+
+        <!-- Dins de foulInformation, afegim l'apartat de l'equip del rebot de tirs lliures -->
+    <div id="ftReboundTeamSection" class="hidden" style="margin-top: 16px;">
+      <span class="question-label" style="display: block; margin-bottom: 8px;">Qui agafa el rebot del tir lliure?</span>
+      <div class="full-width-btn-group grid-3col">
+        <button type="button" class="ft-reb-team-btn" data-team="home">Local</button>
+        <button type="button" class="ft-reb-team-btn" data-team="away">Visitant</button>
+        <button type="button" class="ft-reb-team-btn" data-team="none">No Rebot</button>
+      </div>
+    </div>
+      </section>
+
+      <!-- 8. Rebot (NOMÉS TRIAR EQUIP) -->
+      <section id="reboundInformation" class="panel hidden">
+        <h3>Rebot</h3>
+        <div class="rebound-card">
+          <span class="question-label">Equip que agafa el rebot:</span>
+          <div class="full-width-btn-group">
+            <button type="button" id="reboundHomeBtn" class="reb-team-btn"></button>
+            <button type="button" id="reboundAwayBtn" class="reb-team-btn"></button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 8A. Acció Posterior (NOMÉS REBOT D'ATAC) -->
+      <section id="posteriorActionSection" class="panel hidden">
+        <h3>Acció Posterior (Rebot Ofensiu)</h3>
+        <div class="full-width-btn-group grid-2col">
+          <button type="button" class="reb-act-btn">PUTBACK</button>
+          <button type="button" class="reb-act-btn">TRIPLE</button>
+          <button type="button" class="reb-act-btn">ACCIÓN TÁCTICA</button>
+          <button type="button" class="reb-act-btn">ROTACIÓN</button>
+        </div>
+      </section>
+
+      <!-- 8B. Contraatac (NOMÉS REBOT DEFENSIU) -->
+      <section id="fastbreakSection" class="panel hidden">
+        <h3>Contraatac?</h3>
+        <div class="full-width-btn-group grid-3col">
+          <button type="button" class="fb-btn">Sí</button>
+          <button type="button" class="fb-btn">Falta</button>
+          <button type="button" class="fb-btn">No</button>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- Gestió d'alineacions / Substitucions -->
+    <section id="substitutionsLayout" class="panel hidden">
+      <h2>Substitucions</h2>
+      <div class="subs-columns">
+        <div id="homeSubstitutions" class="sub-column"></div>
+        <div id="awaySubstitutions" class="sub-column"></div>
+      </div>
+      <div class="actions-row">
+        <button id="confirmSubsBtn" onclick="confirmSubs()">Confirmar Quintets</button>
+        <button id="undoSubsBtn" onclick="undoSubs()" disabled>Desfer Substitucions</button>
+        <button onclick="hideAllSubstitutionThings()" style="background-color: #555;">Cancel·lar</button>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // Configuració de Supabase
+    const SUPABASE_URL = "https://atajqbhztjssgplygarb.supabase.co";
+    const API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0YWpxYmh6dGpzc2dwbHlnYXJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxOTg0OTEsImV4cCI6MjA5NDc3NDQ5MX0.8m7Qfh_5s2-4Bg92NXISG_w49myAYnmASOWrUR66I9Q";
+    const AUTH = "Bearer " + API_KEY;
+
+    // Estat de l'aplicació
+    let rAct = {};
+    let homeLineupId = "";
+    let awayLineupId = "";
+    let isPostReboundAction = false;
+
+    let homeInCourt = [];
+    let awayInCourt = [];
+    let homeInCourtSaved = [];
+    let awayInCourtSaved = [];
+
+    let homePlayers = [];
+    let awayPlayers = [];
+
+    let homeName = "ESPAÑA U20";
+    let awayName = "RIVAL";
+    let homeId = "bd2ac1a3-3884-4faf-9897-38999431983a";
+    let awayId = "96c243b5-0fe8-4f0e-8fb9-d54f7557ab10";
+    let gameId = "e6cc851d-3792-4678-962f-5dcb38bf69a8";
+    let homeColor = "#ff0000";
+    let awayColor = "#0000ff";
+
+    let homeSpain = true;
+    let awaySpain = false;
+
+    let tipoffTime = null;
+    let teamWithPossession = -1;
+    let idInGame = 1;
+    let actions = [];
+    let confirmationSubs = false;
+
+    let currentGameId = -1;
+    let selectedHomeUuid = null;
+    let selectedAwayUuid = null;
+    let gamesBetweenTeams = [];
+
+    async function supabaseFetch(endpoint, method = 'GET', body = null, extraHeaders = {}) {
+      const headers = {
+        'apikey': API_KEY,
+        'Authorization': AUTH,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation',
+        ...extraHeaders
+      };
+
+      const options = { method, headers };
+      if (body) options.body = JSON.stringify(body);
+
+      try {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/${endpoint}`, options);
+        if (!res.ok) throw new Error(await res.text());
+        return await res.json();
+      } catch (err) {
+        console.error("Supabase Error:", err);
+        return null;
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      setupEventListeners();
+      setupReboundActions();
+      setupFastbreakButtons();
+      setupFoulButtons();
+      setupPossessionTimeButtons();
+      loadMockData();
+      initGameInfoScreen();
+      actionsFromGame(gameId);
+    });
+
+    function setupEventListeners() {
+      const homeBtn = document.getElementById("homeTeamBtn");
+      const awayBtn = document.getElementById("awayTeamBtn");
+
+      if (homeBtn) homeBtn.textContent = homeName.toUpperCase();
+      if (awayBtn) awayBtn.textContent = awayName.toUpperCase();
+
+      homeBtn?.addEventListener("click", () => selectPossession(1));
+      awayBtn?.addEventListener("click", () => selectPossession(2));
+
+      document.querySelectorAll(".set-btn").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+          highlightButton(e.target);
+
+          rAct = {
+            focus: e.target.textContent.trim(),
+            team_uuid: teamWithPossession === 1 ? homeId : awayId,
+            spain_role: spainBall() ? "OFFENSE" : (oppBall() ? "DEFENSE" : "NONE")
+          };
+
+          if (e.target.textContent.includes("PnR")) {
+            posarTrans();
+          } else {
+            posarJugadorsImplicats(false);
+          }
+        });
+      });
+    }
+
+    function selectPossession(team) {
+      if (!tipoffTime) tipoffTime = new Date();
+      teamWithPossession = team;
+      showPanel("sets");
+
+      const homeBtn = document.getElementById("homeTeamBtn");
+      const awayBtn = document.getElementById("awayTeamBtn");
+      if (homeBtn) homeBtn.style.opacity = team === 1 ? "1" : "0.5";
+      if (awayBtn) awayBtn.style.opacity = team === 2 ? "1" : "0.5";
+
+      rAct = {};
+      isPostReboundAction = false;
+      showPanel("sets");
+    }
+
+    function spainBall() {
+      return (homeSpain && teamWithPossession === 1) || (awaySpain && teamWithPossession === 2);
+    }
+
+    function oppBall() {
+      return (homeSpain && teamWithPossession === 2) || (awaySpain && teamWithPossession === 1);
+    }
+
+    function showPanel(id) {
+      const panels = [
+        "sets", "transitionScreen", "involvedPlayers", "defense",
+        "nextAction", "finalInformation", "foulInformation",
+        "reboundInformation", "posteriorActionSection", "fastbreakSection",
+        "substitutionsLayout"
+      ];
+
+      panels.forEach(p => {
+        const el = document.getElementById(p);
+        if (el) el.classList.add("hidden");
+      });
+
+      if (id) {
+        const target = document.getElementById(id);
+        if (target) target.classList.remove("hidden");
+      }
+    }
+
+    function posarJugadorsImplicats(fromRebound = false, focusText = null) {
+      showPanel("involvedPlayers");
+
+      if (fromRebound && focusText) {
+        rAct.focus = focusText;
+        rAct.team_uuid = teamWithPossession === 1 ? homeId : awayId;
+        rAct.spain_role = spainBall() ? "OFFENSE" : (oppBall() ? "DEFENSE" : "NONE");
+      }
+
+      renderInvolvedButtons();
+    }
+
+    function renderInvolvedButtons() {
+      const players = teamWithPossession === 1 ? homePlayers : awayPlayers;
+      const onCourt = teamWithPossession === 1 ? homeInCourt : awayInCourt;
+
+      const handlerContainer = document.getElementById("handlerButtons");
+      if (handlerContainer) {
+        handlerContainer.innerHTML = "";
+        onCourt.forEach(idx => {
+          const player = players[idx];
+          if (!player) return;
+          const btn = document.createElement("button");
+          btn.textContent = `#${player.shirt_number || player.number}`;
+          btn.onclick = (e) => {
+            highlightButton(e.currentTarget);
+            rAct.handler_uuid = player.uuid;
+            checkIfPassToTactics();
+          };
+          handlerContainer.appendChild(btn);
+        });
+      }
+
+      const screenerContainer = document.getElementById("screenerButtons");
+      if (screenerContainer) {
+        screenerContainer.innerHTML = "";
+        onCourt.forEach(idx => {
+          const player = players[idx];
+          if (!player) return;
+          const btn = document.createElement("button");
+          btn.textContent = `#${player.shirt_number || player.number}`;
+          btn.onclick = (e) => {
+            highlightButton(e.currentTarget);
+            rAct.roller_uuid = player.uuid;
+            checkIfPassToTactics();
+          };
+          screenerContainer.appendChild(btn);
+        });
+      }
+
+      document.querySelectorAll("#involvedPlayers .tech-btn").forEach(btn => {
+        btn.onclick = (e) => {
+          highlightButton(e.currentTarget);
+          rAct.technical_detail = e.currentTarget.textContent.trim();
+          checkIfPassToTactics();
+        };
+      });
+    }
+
+    function checkIfPassToTactics() {
+      if (isPostReboundAction) {
+        if (rAct.handler_uuid || rAct.technical_detail) {
+          isPostReboundAction = false;
+          posarFinalInformation();
+          return;
+        }
+      }
+
+      if (rAct.focus && rAct.focus.includes("PnR")) {
+        if (rAct.handler_uuid && rAct.roller_uuid && rAct.technical_detail) {
+          posarDefensa();
+        }
+      } else {
+        if (rAct.handler_uuid || rAct.technical_detail) {
+          posarFinalInformation();
+        }
+      }
+    }
+
+    function posarTrans() {
+      showPanel("transitionScreen");
+
+      document.querySelectorAll(".trans-btn").forEach(btn => {
+        btn.onclick = (e) => {
+          const val = e.currentTarget.getAttribute("data-val");
+          rAct.transition_screen = val === "transicion" ? "Transición" : "Estático";
+          posarJugadorsImplicats(false);
+        };
+      });
+    }
+
+    function posarDefensa() {
+      showPanel("defense");
+      const container = document.getElementById("defenseButtons");
+      if (!container) return;
+      container.innerHTML = "";
+
+      const options = rAct.spain_role === "DEFENSE"
+        ? ["HEDGE", "HEDGE & PLUG", "SHORT HEDGE", "CAMBIO", "FLAT", "PUSH-UNDER", "OTRA"]
+        : ["INTERIOR AGRESIVO", "INTERIOR CONSERVADOR", "CAMBIO", "UNDER", "OTRA"];
+
+      options.forEach(opt => {
+        const btn = document.createElement("button");
+        btn.textContent = opt;
+        btn.onclick = (e) => {
+          highlightButton(e.target);
+          rAct.defense = opt;
+          posarNextAction();
+        };
+        container.appendChild(btn);
+      });
+    }
+
+    function posarNextAction() {
+      showPanel("nextAction");
+      document.querySelectorAll(".next-btn").forEach(btn => {
+        btn.onclick = (e) => {
+          highlightButton(e.target);
+          rAct.action_after_pick = e.target.textContent.trim();
+          posarFinalInformation();
+        };
+      });
+    }
+
+    function posarFinalInformation() {
+      showPanel("finalInformation");
+      setupReboundCountButtons();
+      setupResultButtons();
+    }
+
+    function forcedTurnover() {
+      rAct.result = "TO";
+      upsertAction();
+      showPanel("sets");
+    }
+
+    function foul() {
+      rAct.result = "PF";
+      showPanel("foulInformation");
+    }
+
+    async function upsertAction() {
+      rAct.game_uuid = gameId || null;
+      rAct.home_lineup_uuid = homeLineupId || null;
+      rAct.away_lineup_uuid = awayLineupId || null;
+      rAct.id_in_game = idInGame;
+
+      if (rAct.after_offensive_rebound !== 1) {
+        rAct.after_offensive_rebound = 0;
+      }
+
+      const payload = { ...rAct };
+      Object.keys(payload).forEach(key => {
+        if (payload[key] === "") {
+          payload[key] = null;
+        }
+      });
+
+      try {
+        const response = await supabaseFetch("actions", "POST", payload);
+        console.log("Acció guardada correctament:", response);
+        if (response) idInGame++;
+      } catch (error) {
+        console.error("Error guardant l'acció:", error);
+      }
+
+      clearAllSelectedButtons();
+      
+      if (!isPostReboundAction) {
+        rAct = {};
+      }
+    }
+
+    async function actionsFromGame(id) {
+      const data = await supabaseFetch(`actions?game_uuid=eq.${id}`);
+      if (data && data.length > 0) {
+        actions = data;
+        const maxId = Math.max(...actions.map(a => a.id_in_game || 0), 0);
+        idInGame = maxId + 1;
+      } else {
+        idInGame = 1;
+      }
+    }
+
+    function setupReboundCountButtons() {
+      document.querySelectorAll("#rebCountButtons button").forEach(btn => {
+        btn.onclick = (e) => {
+          highlightButton(e.target);
+          rAct.players_to_rebound = parseInt(e.target.textContent.trim(), 10);
+        };
+      });
+    }
+
+    function setupResultButtons() {
+      document.querySelectorAll("#finalInformation .res-btn").forEach(btn => {
+        if (btn.closest("#rebCountButtons")) return;
+
+        btn.onclick = (e) => {
+          const res = e.target.textContent.trim();
+          rAct.result = res;
+
+          if (res === "2+" || res === "3+") {
+            handleMadeBasket();
+          } else if (res === "2-" || res === "3-") {
+            handleMissedBasket();
+          } else if (res === "TO") {
+            forcedTurnover();
+          } else if (res === "PF") {
+            foul();
+          } else {
+            upsertAction();
+            showPanel("sets");
+          }
+        };
+      });
+    }
+
+    function handleMadeBasket() {
+      upsertAction();
+      const nextTeam = teamWithPossession === 1 ? 2 : 1;
+      selectPossession(nextTeam);
+    }
+
+    // --- LÒGICA DE REBOT UNIFICADA I CORREGIDA ---
+
+    function handleMissedBasket() {
+      const rebHomeBtn = document.getElementById("reboundHomeBtn");
+      const rebAwayBtn = document.getElementById("reboundAwayBtn");
+
+      document.getElementById("posteriorActionSection")?.classList.add("hidden");
+      document.getElementById("fastbreakSection")?.classList.add("hidden");
+
+      if (rebHomeBtn && rebAwayBtn) {
+        rebHomeBtn.textContent = homeName;
+        rebAwayBtn.textContent = awayName;
+
+        rebHomeBtn.classList.remove("selected-btn");
+        rebAwayBtn.classList.remove("selected-btn");
+
+        rebHomeBtn.onclick = (e) => handleReboundClick(e.currentTarget, 1);
+        rebAwayBtn.onclick = (e) => handleReboundClick(e.currentTarget, 2);
+      }
+
+      showPanel("reboundInformation");
+    }
+
+    function handleReboundClick(btnElement, teamWhoRebounded) {
+      highlightButton(btnElement);
+
+      rAct.rebound_team_uuid = teamWhoRebounded === 1 ? homeId : awayId;
+
+      if (teamWhoRebounded !== teamWithPossession) {
+        // --- REBOT DEFENSIU ---
+        isPostReboundAction = false;
+        teamWithPossession = teamWhoRebounded;
+
+        document.getElementById("posteriorActionSection")?.classList.add("hidden");
+        const fb = document.getElementById("fastbreakSection");
+        if (fb) {
+          fb.classList.remove("hidden");
+          setupFastbreakButtons();
+        }
+        
+        upsertAction();
+
+      } else {
+        // --- REBOT OFENSIU ---
+        isPostReboundAction = true;
+
+        document.getElementById("fastbreakSection")?.classList.add("hidden");
+        const post = document.getElementById("posteriorActionSection");
+        if (post) {
+          post.classList.remove("hidden");
+          setupReboundActions();
+        }
+
+        upsertAction().then(() => {
+          rAct = {
+            team_uuid: teamWithPossession === 1 ? homeId : awayId,
+            spain_role: spainBall() ? "OFFENSE" : (oppBall() ? "DEFENSE" : "NONE"),
+            after_offensive_rebound: 1
+          };
+        });
+      }
+    }
+
+    function setupReboundActions() {
+      document.querySelectorAll("#posteriorActionSection .reb-act-btn").forEach(btn => {
+        btn.onclick = (e) => {
+          highlightButton(e.currentTarget);
+          const option = e.currentTarget.textContent.trim();
+          rAct.after_offensive_rebound = 1;
+
+          if (option === "ACCIÓN TÁCTICA") {
+            isPostReboundAction = false;
+            showPanel("sets");
+          } else {
+            rAct.focus = option;
+            posarJugadorsImplicats(true, option);
+          }
+        };
+      });
+    }
+
+
+    function initGameInfoScreen() {
+      const now = new Date();
+      now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+      const el = document.getElementById("gameDate");
+      if (el) el.value = now.toISOString().slice(0, 16);
+
+      loadAllGames();
+    }
+
+    function resetGameForm() {
+      currentGameId = -1;
+      selectedHomeUuid = null;
+      selectedAwayUuid = null;
+
+      const fields = ["homeTeamInput", "awayTeamInput", "competition", "round", "court"];
+      fields.forEach(id => {
+        const input = document.getElementById(id);
+        if (input) input.value = "";
+      });
+
+      document.querySelectorAll(".game-item").forEach(el => el.classList.remove("selected"));
+    }
+
+    async function loadAllGames() {
+      const selectQuery = "*,homeTeam:teams!games_home_team_uuid_fkey(*),competition:competitions!games_competition_fkey(*),court:courts!games_venue_fkey(*),awayTeam:teams!games_away_team_uuid_fkey(*)";
+      const games = await supabaseFetch(`games?select=${encodeURIComponent(selectQuery)}`, 'GET');
+
+      const container = document.getElementById("allGamesList");
+      if (!container) return;
+      container.innerHTML = "";
+
+      if (games && games.length > 0) {
+        const parseCustomDate = (dateStr) => {
+          if (!dateStr) return new Date(0);
+          const [datePart, timePart] = dateStr.split(" ");
+          if (!datePart) return new Date(0);
+
+          const [day, month, year] = datePart.split("/");
+          const [hours, minutes] = timePart ? timePart.split(":") : [0, 0];
+
+          return new Date(year, month - 1, day, hours, minutes);
+        };
+
+        games.sort((a, b) => parseCustomDate(b.date) - parseCustomDate(a.date));
+
+        gamesBetweenTeams = games;
+        games.forEach(game => {
+          const item = document.createElement("div");
+          item.className = "game-item";
+
+          const hName = game.homeTeam ? game.homeTeam.name : "Local";
+          const aName = game.awayTeam ? game.awayTeam.name : "Visitant";
+          const dateText = game.date ? game.date : "Sense data";
+
+          item.textContent = `${hName} vs ${aName} (${dateText})`;
+
+          item.onclick = () => selectExistingGame(game, item);
+          container.appendChild(item);
+        });
+      } else {
+        container.innerHTML = "<p>No hi ha partits registrats.</p>";
+      }
+    }
+
+    function selectExistingGame(game, element) {
+      document.querySelectorAll(".game-item").forEach(el => el.classList.remove("selected"));
+      element.classList.add("selected");
+
+      currentGameId = game.id;
+      selectedHomeUuid = game.home_team_uuid;
+      selectedAwayUuid = game.away_team_uuid;
+
+      const homeNameText = game.homeTeam ? game.homeTeam.name : "";
+      const awayNameText = game.awayTeam ? game.awayTeam.name : "";
+
+      const homeIn = document.getElementById("homeTeamInput");
+      const awayIn = document.getElementById("awayTeamInput");
+      const colorHomeIn = document.getElementById("colorHome");
+      const colorAwayIn = document.getElementById("colorAway");
+      const compIn = document.getElementById("competition");
+      const roundIn = document.getElementById("round");
+      const courtIn = document.getElementById("court");
+      const dateIn = document.getElementById("gameDate");
+
+      if (homeIn) homeIn.value = homeNameText;
+      if (awayIn) awayIn.value = awayNameText;
+      if (colorHomeIn) colorHomeIn.value = "#ff0000";
+      if (colorAwayIn) colorAwayIn.value = "#0000ff";
+      if (compIn) compIn.value = game.competition?.name || ""; 
+      if (roundIn) roundIn.value = game.round || "";
+      if (courtIn) courtIn.value = game.court?.name || "";
+
+      if (dateIn) {
+        if (game.date && game.date.includes("/")) {
+          const [datePart, timePart] = game.date.split(" ");
+          const [day, month, year] = datePart.split("/");
+          const timeFormatted = timePart || "00:00";
+          dateIn.value = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}T${timeFormatted}`;
+        } else {
+          dateIn.value = game.date || "";
+        }
+      }
+
+      homeSpain = homeNameText.toUpperCase().trim() === "ESPAÑA U20";
+      awaySpain = awayNameText.toUpperCase().trim() === "ESPAÑA U20";
+    }
+
+    async function confirmGameInfo() {
+      const homeNameInput = document.getElementById("homeTeamInput").value.trim();
+      const awayNameInput = document.getElementById("awayTeamInput").value.trim();
+
+      if (!homeNameInput || !awayNameInput) {
+        alert("Si us plau, introdueix els noms de l'equip Local i Visitant.");
+        return;
+      }
+
+      const courtName = document.getElementById("court")?.value.trim();
+      const compName = document.getElementById("competition")?.value.trim();
+      const roundVal = document.getElementById("round")?.value.trim();
+      const dateVal = document.getElementById("gameDate")?.value;
+
+      const colorHomeVal = document.getElementById("colorHome")?.value || homeColor;
+      const colorAwayVal = document.getElementById("colorAway")?.value || awayColor;
+
+      try {
+        const homeTeamRes = await upsertEntity('teams', 'name', { name: homeNameInput });
+        const homeUuid = (homeTeamRes && homeTeamRes[0]) ? homeTeamRes[0].uuid : selectedHomeUuid;
+
+        const awayTeamRes = await upsertEntity('teams', 'name', { name: awayNameInput });
+        const awayUuid = (awayTeamRes && awayTeamRes[0]) ? awayTeamRes[0].uuid : selectedAwayUuid;
+
+        let courtUuid = null;
+        if (courtName) {
+          const courtRes = await upsertEntity('courts', 'name', { name: courtName });
+          if (courtRes && courtRes.length > 0) courtUuid = courtRes[0].uuid;
+        }
+
+        let compUuid = null;
+        if (compName) {
+          const compRes = await upsertEntity('competitions', 'name', { name: compName });
+          if (compRes && compRes.length > 0) compUuid = compRes[0].uuid;
+        }
+
+        const gamePayload = {
+          home_team_uuid: homeUuid,
+          away_team_uuid: awayUuid,
+          date: dateVal,
+          venue: courtUuid,
+          round: roundVal,
+          competition: compUuid
+        };
+
+        const gameRes = await upsertEntity('games', 'home_team_uuid,away_team_uuid,date', gamePayload);
+        if (gameRes && gameRes.length > 0) {
+          currentGameId = gameRes[0].uuid;
+        }
+
+        gameId = currentGameId;
+        homeId = homeUuid;
+        awayId = awayUuid;
+        homeName = homeNameInput;
+        awayName = awayNameInput;
+        homeColor = colorHomeVal;
+        awayColor = colorAwayVal;
+
+        homeSpain = homeName.toUpperCase() === "ESPAÑA U20";
+        awaySpain = awayName.toUpperCase() === "ESPAÑA U20";
+
+        const hBtn = document.getElementById("homeTeamBtn");
+        const aBtn = document.getElementById("awayTeamBtn");
+        if (hBtn) hBtn.textContent = homeName.toUpperCase();
+        if (aBtn) aBtn.textContent = awayName.toUpperCase();
+
+        await loadPlayersForGame(homeUuid, awayUuid);
+
+        document.getElementById("newGameInfoLayout")?.classList.add("hidden");
+        document.getElementById("inGameLayout")?.classList.remove("hidden");
+        document.getElementById("scoreboardHeader")?.classList.remove("hidden");
+
+      await loadPlayersForGame(homeUuid, awayUuid);
+
+        document.getElementById("newGameInfoLayout")?.classList.add("hidden");
+        document.getElementById("inGameLayout")?.classList.remove("hidden");
+        document.getElementById("scoreboardHeader")?.classList.remove("hidden");
+        
+        // Afegeix aquesta línia perquè s'obri directament la pantalla de quintets en entrar:
+        showAllSubstitutionThings();
+
+      } catch (err) {
+        console.error("Error en la creació del partit:", err);
+        alert("Hi ha hagut un error guardant la informació del partit.");
+      }
+    }
+
+    async function upsertEntity(table, onConflictColumns, payload) {
+      const headers = {
+        'Prefer': `resolution=merge-duplicates,return=representation`,
+        'on_conflict': onConflictColumns
+      };
+      return await supabaseFetch(`${table}?on_conflict=${encodeURIComponent(onConflictColumns)}`, 'POST', payload, headers);
+    }
+
+    async function loadPlayersForGame(hUuid, aUuid) {
+      const homeData = await supabaseFetch(`players?team_uuid=eq.${hUuid}`, 'GET');
+      const awayData = await supabaseFetch(`players?team_uuid=eq.${aUuid}`, 'GET');
+
+      if (homeData && homeData.length > 0) {
+        homePlayers = homeData.sort((a, b) => parseInt(a.shirt_number || 0) - parseInt(b.shirt_number || 0));
+      }
+      if (awayData && awayData.length > 0) {
+        awayPlayers = awayData.sort((a, b) => parseInt(a.shirt_number || 0) - parseInt(b.shirt_number || 0));
+      }
+
+      homeInCourt = [];
+      awayInCourt = [];
+
+      buildOnCourtButtons();
+    }
+
+    async function showAllSubstitutionThings() {
+      homeInCourtSaved = [...homeInCourt];
+      awayInCourtSaved = [...awayInCourt];
+      confirmationSubs = false;
+	
+      await loadGameRoster();
+      renderSubstitutionLists();
+document.querySelector(".court-players")?.classList.add("hidden");
+      showPanel("substitutionsLayout");
+    }
+
+    function hideAllSubstitutionThings() {
+      confirmationSubs = false;
+document.querySelector(".court-players")?.classList.remove("hidden");
+      showPanel("sets");
+    }
+
+    function renderSubstitutionLists() {
+      renderTeamSubs("homeSubstitutions", homePlayers, homeInCourt, "home");
+      renderTeamSubs("awaySubstitutions", awayPlayers, awayInCourt, "away");
+    }
+
+    function renderTeamSubs(containerId, players, inCourtList, teamType) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      
+      container.innerHTML = `<h3>${teamType === 'home' ? homeName : awayName} (${inCourtList.length}/5)</h3>`;
+
+      players.forEach((player, idx) => {
+        const row = document.createElement("div");
+        row.className = "sub-row";
+
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.textContent = `#${player.shirt_number || '?'}`;
+
+        const isOnCourt = inCourtList.includes(idx);
+        if (isOnCourt) {
+          btn.classList.add("player-in-court");
+        } else {
+          btn.classList.remove("player-in-court");
+        }
+
+        btn.onclick = () => togglePlayerInCourt(idx, inCourtList, teamType);
+
+        const nameLabel = document.createElement("span");
+        nameLabel.textContent = player.name || `Jugador ${idx + 1}`;
+
+        row.appendChild(btn);
+        row.appendChild(nameLabel);
+        container.appendChild(row);
+      });
+    }
+
+    function togglePlayerInCourt(playerIndex, inCourtList, teamType) {
+      const pos = inCourtList.indexOf(playerIndex);
+      if (pos > -1) {
+        inCourtList.splice(pos, 1);
+      } else {
+        inCourtList.push(playerIndex);
+      }
+
+      inCourtList.sort((a, b) => a - b);
+      renderSubstitutionLists();
+    }
+
+    function goodSubs() {
+      return homeInCourt.length === 5 && awayInCourt.length === 5;
+    }
+
+    function confirmSubs() {
+      if (goodSubs() || confirmationSubs) {
+        buildOnCourtButtons();
+        saveLineups();
+
+        const undoBtn = document.getElementById("undoSubsBtn");
+        if (undoBtn) undoBtn.disabled = false;
+        hideAllSubstitutionThings();
+        return;
+      }
+
+      alert("No hi ha 5 jugadors en cada equip. Prems de nou per confirmar de totes maneres?");
+      confirmationSubs = true;
+    }
+
+    function undoSubs() {
+      homeInCourt = [...homeInCourtSaved];
+      awayInCourt = [...awayInCourtSaved];
+      buildOnCourtButtons();
+      hideAllSubstitutionThings();
+    }
+
+    function buildOnCourtButtons() {
+      const homeCourt = document.getElementById("homeCourt");
+      const awayCourt = document.getElementById("awayCourt");
+
+      if (homeCourt) {
+        homeCourt.innerHTML = `<strong>${homeName}:</strong> ` +
+          homeInCourt.map(idx => `#${homePlayers[idx]?.shirt_number || homePlayers[idx]?.number || '?'}`).join(" ");
+      }
+
+      if (awayCourt) {
+        awayCourt.innerHTML = `<strong>${awayName}:</strong> ` +
+          awayInCourt.map(idx => `#${awayPlayers[idx]?.shirt_number || awayPlayers[idx]?.number || '?'}`).join(" ");
+      }
+    }
+
+    async function saveLineups() {
+      await upsertLineup(true, homePlayers, homeInCourt, (luId) => {
+        if (luId) homeLineupId = luId;
+      });
+
+      await upsertLineup(false, awayPlayers, awayInCourt, (aLuId) => {
+        if (aLuId) awayLineupId = aLuId;
+      });
+
+      console.log("Lineups actualitzats -> Local:", homeLineupId, "| Visitant:", awayLineupId);
+    }
+
+    async function upsertLineup(isHome, playersList, idxs, callback) {
+      if (!idxs || idxs.length < 5) {
+        if (callback) callback("");
+        return;
+      }
+
+      const segundos = tipoffTime ? Math.floor((new Date() - tipoffTime) / 1000) : 0;
+      const validGameUuid = (typeof gameId === "string" && gameId.length > 10) ? gameId : null;
+
+      const p1 = playersList[idxs[0]]?.uuid || null;
+      const p2 = playersList[idxs[1]]?.uuid || null;
+      const p3 = playersList[idxs[2]]?.uuid || null;
+      const p4 = playersList[idxs[3]]?.uuid || null;
+      const p5 = playersList[idxs[4]]?.uuid || null;
+
+      const query = `player1_uuid=eq.${p1}&player2_uuid=eq.${p2}&player3_uuid=eq.${p3}&player4_uuid=eq.${p4}&player5_uuid=eq.${p5}`;
+      const existing = await supabaseFetch(`lineups?${query}`, 'GET');
+
+      if (existing && existing.length > 0) {
+        if (callback) callback(existing[0].uuid);
+        return;
+      }
+
+      const lineupPayload = {
+        game_uuid: validGameUuid,
+        team_uuid: isHome ? homeId : awayId,
+        player1_uuid: p1,
+        player2_uuid: p2,
+        player3_uuid: p3,
+        player4_uuid: p4,
+        player5_uuid: p5,
+        video_seconds: segundos
+      };
+
+      const data = await supabaseFetch('lineups', 'POST', lineupPayload, {
+        'Prefer': 'resolution=merge-duplicates,return=representation'
+      });
+
+      if (data && data.length > 0) {
+        if (callback) callback(data[0].uuid || data[0].id);
+      } else {
+        if (callback) callback("");
+      }
+    }
+
+    function highlightButton(btn) {
+      if (!btn) return;
+      const container = btn.parentElement;
+      if (!container) return;
+
+      const siblingButtons = container.querySelectorAll("button");
+      siblingButtons.forEach(b => b.classList.remove("selected-btn"));
+
+      btn.classList.add("selected-btn");
+    }
+
+    function clearAllSelectedButtons() {
+      document.querySelectorAll("button.selected-btn").forEach(btn => {
+        btn.classList.remove("selected-btn");
+      });
+    }
+
+    function setupFoulButtons() {
+      document.querySelectorAll(".foul-btn").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+          highlightButton(e.target);
+          rAct.foul_type = e.target.textContent.trim();
+        });
+      });
+
+      document.querySelectorAll(".reb-exist-btn").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+          highlightButton(e.target);
+          rAct.has_rebound = e.target.textContent.trim();
+        });
+      });
+    }
+
+    function setupPossessionTimeButtons() {
+      document.querySelectorAll(".time-btn").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+          highlightButton(e.target);
+          rAct.possession_time = e.target.textContent.trim();
+        });
+      });
+    }
+
+    function loadMockData() {
+      homePlayers = Array.from({length: 12}, (_, i) => ({ uuid: `h${i}`, shirt_number: `${i+4}`, name: `Local ${i+1}` }));
+      awayPlayers = Array.from({length: 12}, (_, i) => ({ uuid: `a${i}`, shirt_number: `${i+4}`, name: `Visitant ${i+1}` }));
+
+      homeInCourt = [0, 1, 2, 3, 4];
+      awayInCourt = [0, 1, 2, 3, 4];
+    }
+
+    async function loadGameRoster() {
+      const activeGameId = gameId || (typeof currentGameId !== "undefined" ? currentGameId : null);
+      
+      if (!activeGameId) {
+        alert("Primer has de seleccionar o confirmar un partit!");
+        return;
+      }
+
+      const homeUuid = homeId || (typeof selectedHomeUuid !== "undefined" ? selectedHomeUuid : null);
+      const awayUuid = awayId || (typeof selectedAwayUuid !== "undefined" ? selectedAwayUuid : null);
+
+      const homeData = await supabaseFetch(`players?team_uuid=eq.${homeUuid}&played_last_game=eq.1`, 'GET');
+      const awayData = await supabaseFetch(`players?team_uuid=eq.${awayUuid}&played_last_game=eq.1`, 'GET');
+
+      const sortByShirtNumber = (a, b) => {
+        const numA = parseInt(a.shirt_number || a.number || 0, 10);
+        const numB = parseInt(b.shirt_number || b.number || 0, 10);
+        return numA - numB;
+      };
+
+      if (homeData && homeData.length > 0) homePlayers = homeData.sort(sortByShirtNumber);
+      if (awayData && awayData.length > 0) awayPlayers = awayData.sort(sortByShirtNumber);
+if (!homeInCourt) homeInCourt = [];
+      if (!awayInCourt) awayInCourt = [];
+
+      renderSubstitutionLists();
+    }
+
+    // Delegació global d'events per a botons de resposta binària i selecció ràpida
+    document.addEventListener("click", function (e) {
+      const btn = e.target.closest("button");
+      if (!btn) return;
+
+      if (btn.classList.contains("adv-btn")) {
+        document.querySelectorAll(".adv-btn").forEach(b => b.classList.remove("selected-btn"));
+        btn.classList.add("selected-btn");
+        const val = btn.textContent.trim();
+        rAct.generated_advantage = (val === "Sí" || val === "S") ? 1 : 0;
+      }
+
+      if (btn.classList.contains("shot-btn")) {
+        document.querySelectorAll(".shot-btn").forEach(b => b.classList.remove("selected-btn"));
+        btn.classList.add("selected-btn");
+        const val = btn.textContent.trim();
+        rAct.selected_shot = (val === "Sí" || val === "S") ? 1 : 0;
+      }
+
+      if (btn.classList.contains("c-reb-btn")) {
+        document.querySelectorAll(".c-reb-btn").forEach(b => b.classList.remove("selected-btn"));
+        btn.classList.add("selected-btn");
+        rAct.players_to_rebound = parseInt(btn.textContent.trim(), 10);
+      }
+    });
+
+function handleReboundClick(btnElement, teamWhoRebounded) {
+      highlightButton(btnElement);
+
+      rAct.rebound_team_uuid = teamWhoRebounded === 1 ? homeId : awayId;
+
+      if (teamWhoRebounded !== teamWithPossession) {
+        // --- REBOT DEFENSIU ---
+        isPostReboundAction = false;
+        teamWithPossession = teamWhoRebounded;
+
+        document.getElementById("posteriorActionSection")?.classList.add("hidden");
+        const fb = document.getElementById("fastbreakSection");
+        if (fb) {
+          fb.classList.remove("hidden");
+          setupFastbreakButtons();
+        }
+        
+        // Aquí no guardem encara; s'espera que triï si hi ha contraatac o no.
+
+      } else {
+        // --- REBOT OFENSIU ---
+        isPostReboundAction = true;
+
+        document.getElementById("fastbreakSection")?.classList.add("hidden");
+        const post = document.getElementById("posteriorActionSection");
+        if (post) {
+          post.classList.remove("hidden");
+          setupReboundActions();
+        }
+
+        // Tampoc guardem immediatament; preparem el rodatge per a la nova acció ofensiva.
+        rAct.after_offensive_rebound = 1;
+      }
+    }
+
+    function setupReboundActions() {
+      document.querySelectorAll("#posteriorActionSection .reb-act-btn").forEach(btn => {
+        btn.onclick = (e) => {
+          highlightButton(e.currentTarget);
+          const option = e.currentTarget.textContent.trim();
+          rAct.after_offensive_rebound = 1;
+
+          if (option === "ACCIÓN TÁCTICA") {
+            isPostReboundAction = false;
+            showPanel("sets");
+          } else {
+            rAct.focus = option;
+            posarJugadorsImplicats(true, option);
+          }
+          
+          // Ara que ja s'ha definit l'acció posterior del rebot ofensiu, es desa tot junt
+          upsertAction();
+        };
+      });
+    }
+
+
+
+function handleReboundClick(btnElement, teamWhoRebounded) {
+      highlightButton(btnElement);
+
+      rAct.rebound_team_uuid = teamWhoRebounded === 1 ? homeId : awayId;
+
+      if (teamWhoRebounded !== teamWithPossession) {
+        // --- REBOT DEFENSIU ---
+        // L'equip contrari agafa el rebot -> Canvi de possessió
+        isPostReboundAction = false;
+        teamWithPossession = teamWhoRebounded;
+
+        document.getElementById("posteriorActionSection")?.classList.add("hidden");
+        const fb = document.getElementById("fastbreakSection");
+        if (fb) {
+          fb.classList.remove("hidden");
+          setupFastbreakButtons();
+        }
+
+      } else {
+        // --- REBOT OFENSIU ---
+        // El mateix equip manté la possessió
+        isPostReboundAction = true;
+
+        document.getElementById("fastbreakSection")?.classList.add("hidden");
+        const post = document.getElementById("posteriorActionSection");
+        if (post) {
+          post.classList.remove("hidden");
+          setupReboundActions();
+        }
+
+        rAct.after_offensive_rebound = 1;
+      }
+    }
+
+    function setupReboundActions() {
+      document.querySelectorAll("#posteriorActionSection .reb-act-btn").forEach(btn => {
+        btn.onclick = (e) => {
+          highlightButton(e.currentTarget);
+          const option = e.currentTarget.textContent.trim();
+          
+          rAct.after_offensive_rebound = 1;
+          rAct.focus = option;
+          // Assegurem rols per al rebot ofensiu (segueix atacant el mateix equip)
+          rAct.team_uuid = teamWithPossession === 1 ? homeId : awayId;
+          rAct.spain_role = spainBall() ? "OFFENSE" : (oppBall() ? "DEFENSE" : "NONE");
+
+          if (option === "ACCIÓN TÁCTICA") {
+            isPostReboundAction = false;
+            upsertAction();
+            showPanel("sets");
+          } else {
+            // Si trien Putback, Triple, etc., passem als jugadors implicats d'aquesta nova acció
+            posarJugadorsImplicats(true, option);
+          }
+        };
+      });
+    }
+
+
+function handleReboundClick(btnElement, teamWhoRebounded) {
+      highlightButton(btnElement);
+
+      // Guardem quin equip ha agafat el rebot
+      rAct.rebound_team_uuid = teamWhoRebounded === 1 ? homeId : awayId;
+
+      // COMPROVACIÓ DIRECTA:
+      // Si l'equip que agafa el rebot ÉS EL MATEIX que tenia la possessió -> REBOT OFENSIU
+      if (teamWhoRebounded === teamWithPossession) {
+        isPostReboundAction = true;
+        rAct.after_offensive_rebound = 1;
+
+        // Amaguem contraatac i mostrem ACCIÓ DE REBOT D'ATAC
+        document.getElementById("fastbreakSection")?.classList.add("hidden");
+        const post = document.getElementById("posteriorActionSection");
+        if (post) {
+          post.classList.remove("hidden");
+          setupReboundActions();
+        }
+
+      } else {
+        // Si l'equip que agafa el rebot ÉS EL RIVAL -> REBOT DEFENSIU
+        isPostReboundAction = false;
+        teamWithPossession = teamWhoRebounded; // Canvia la possessió
+
+        // Amaguem acció d'atac i mostrem CONTRAATAC
+        document.getElementById("posteriorActionSection")?.classList.add("hidden");
+        const fb = document.getElementById("fastbreakSection");
+        if (fb) {
+          fb.classList.remove("hidden");
+          setupFastbreakButtons();
+        }
+
+        // Com que és defensiu i canvia de possessió, ja ho podem desar
+        upsertAction();
+      }
+    }
+
+function handleReboundClick(btnElement, teamWhoRebounded) {
+      highlightButton(btnElement);
+
+      // Guardem quin equip ha agafat el rebot
+      rAct.rebound_team_uuid = teamWhoRebounded === 1 ? homeId : awayId;
+
+      if (teamWhoRebounded === teamWithPossession) {
+        // --- REBOT D'ATAC ---
+        // El mateix equip l'agafa -> S'obre directament l'acció de rebot d'atac
+        isPostReboundAction = true;
+        rAct.after_offensive_rebound = 1;
+
+        document.getElementById("fastbreakSection")?.classList.add("hidden");
+        const post = document.getElementById("posteriorActionSection");
+        if (post) {
+          post.classList.remove("hidden");
+          setupReboundActions();
+        }
+        // NO GUARDEM AQUÍ. Esperem que triï el tipus de rebot d'atac (Putback, Triple, etc.)
+
+      } else {
+        // --- REBOT DEFENSIU ---
+        // L'equip contrari l'agafa -> S'obre directament la secció de contraatac
+        isPostReboundAction = false;
+        teamWithPossession = teamWhoRebounded; // Canvia la possessió
+
+        document.getElementById("posteriorActionSection")?.classList.add("hidden");
+        const fb = document.getElementById("fastbreakSection");
+        if (fb) {
+          fb.classList.remove("hidden");
+          setupFastbreakButtons();
+        }
+        // NO GUARDEM AQUÍ. Esperem que triï si hi ha contraatac, falta o no.
+      }
+    }
+
+    function setupReboundActions() {
+      document.querySelectorAll("#posteriorActionSection .reb-act-btn").forEach(btn => {
+        btn.onclick = (e) => {
+          highlightButton(e.currentTarget);
+          const option = e.currentTarget.textContent.trim();
+          
+          rAct.after_offensive_rebound = 1;
+          rAct.focus = option;
+          rAct.team_uuid = teamWithPossession === 1 ? homeId : awayId;
+          rAct.spain_role = spainBall() ? "OFFENSE" : (oppBall() ? "DEFENSE" : "NONE");
+
+          if (option === "ACCIÓN TÁCTICA") {
+            isPostReboundAction = false;
+            upsertAction(); // Ara sí es guarda en acabar l'acció tàctica
+            showPanel("sets");
+          } else {
+            posarJugadorsImplicats(true, option);
+          }
+        };
+      });
+    }
+
+
+let temporaryReboundTeam = null;
+
+    function handleReboundClick(btnElement, teamWhoRebounded) {
+      highlightButton(btnElement);
+
+      // Guardem temporalment quin equip ha agafat el rebot
+      temporaryReboundTeam = teamWhoRebounded;
+      rAct.rebound_team_uuid = teamWhoRebounded === 1 ? homeId : awayId;
+
+      if (teamWhoRebounded === teamWithPossession) {
+        // --- REBOT D'ATAC ---
+        isPostReboundAction = true;
+        rAct.after_offensive_rebound = 1;
+
+        document.getElementById("fastbreakSection")?.classList.add("hidden");
+        const post = document.getElementById("posteriorActionSection");
+        if (post) {
+          post.classList.remove("hidden");
+          setupReboundActions();
+        }
+        // *No canviem teamWithPossession perquè segueix sent el mateix equip*
+
+      } else {
+        // --- REBOT DEFENSIU ---
+        isPostReboundAction = false;
+        
+        // ❌ NO CANVIEM teamWithPossession AQUÍ. Ho farem quan cliqui el contraatac.
+
+        document.getElementById("posteriorActionSection")?.classList.add("hidden");
+        const fb = document.getElementById("fastbreakSection");
+        if (fb) {
+          fb.classList.remove("hidden");
+          setupFastbreakButtons();
+        }
+      }
+    }
+
+
+    function setupReboundActions() {
+      document.querySelectorAll("#posteriorActionSection .reb-act-btn").forEach(btn => {
+        btn.onclick = (e) => {
+          highlightButton(e.currentTarget);
+          const option = e.currentTarget.textContent.trim();
+          
+          rAct.after_offensive_rebound = 1;
+          rAct.focus = option;
+          rAct.team_uuid = teamWithPossession === 1 ? homeId : awayId;
+          rAct.spain_role = spainBall() ? "OFFENSE" : (oppBall() ? "DEFENSE" : "NONE");
+
+          // En rebot d'atac la possessió no canvia (segueix sent el mateix equip)
+          if (option === "ACCIÓN TÁCTICA") {
+            isPostReboundAction = false;
+            upsertAction();
+            showPanel("sets");
+          } else {
+            posarJugadorsImplicats(true, option);
+          }
+        };
+      });
+    }
+
+
+
+    function handleReboundClick(btnElement, teamWhoRebounded) {
+      highlightButton(btnElement);
+
+      // Guardem temporalment quin equip ha agafat el rebot
+      temporaryReboundTeam = teamWhoRebounded;
+      rAct.rebound_team_uuid = teamWhoRebounded === 1 ? homeId : awayId;
+
+      if (teamWhoRebounded === teamWithPossession) {
+        // --- REBOT D'ATAC ---
+        isPostReboundAction = true;
+        rAct.after_offensive_rebound = 1;
+
+        document.getElementById("fastbreakSection")?.classList.add("hidden");
+        const post = document.getElementById("posteriorActionSection");
+        if (post) {
+          post.classList.remove("hidden");
+          setupReboundActions();
+        }
+        // *No canviem teamWithPossession perquè segueix sent el mateix equip*
+
+      } else {
+        // --- REBOT DEFENSIU ---
+        isPostReboundAction = false;
+        
+        // ❌ NO CANVIEM teamWithPossession AQUÍ. Ho farem quan cliqui el contraatac.
+
+        document.getElementById("posteriorActionSection")?.classList.add("hidden");
+        const fb = document.getElementById("fastbreakSection");
+        if (fb) {
+          fb.classList.remove("hidden");
+          setupFastbreakButtons();
+        }
+      }
+    }
+
+   
+
+    function setupReboundActions() {
+      document.querySelectorAll("#posteriorActionSection .reb-act-btn").forEach(btn => {
+        btn.onclick = (e) => {
+          highlightButton(e.currentTarget);
+          const option = e.currentTarget.textContent.trim();
+          
+          rAct.after_offensive_rebound = 1;
+          rAct.focus = option;
+          rAct.team_uuid = teamWithPossession === 1 ? homeId : awayId;
+          rAct.spain_role = spainBall() ? "OFFENSE" : (oppBall() ? "DEFENSE" : "NONE");
+
+          // En rebot d'atac la possessió no canvia (segueix sent el mateix equip)
+          if (option === "ACCIÓN TÁCTICA") {
+            isPostReboundAction = false;
+            upsertAction();
+            showPanel("sets");
+          } else {
+            posarJugadorsImplicats(true, option);
+          }
+        };
+      });
+    }
+
+
+function setupReboundActions() {
+      document.querySelectorAll("#posteriorActionSection .reb-act-btn").forEach(btn => {
+        btn.onclick = (e) => {
+          highlightButton(e.currentTarget);
+          const option = e.currentTarget.textContent.trim();
+          
+          // Actualitzem les dades de l'acció posterior de rebot
+          rAct.after_offensive_rebound = 1;
+          rAct.focus = option;
+          rAct.team_uuid = teamWithPossession === 1 ? homeId : awayId;
+          rAct.spain_role = spainBall() ? "OFFENSE" : (oppBall() ? "DEFENSE" : "NONE");
+
+          // GUARDEM L'ACCIÓ A LA BASE DE DADES
+          upsertAction();
+
+          // Netegem l'estat i tornem al menú principal de sistemes
+          isPostReboundAction = false;
+          showPanel("sets");
+        };
+      });
+    }
+
+function setupReboundActions() {
+      document.querySelectorAll("#posteriorActionSection .reb-act-btn").forEach(btn => {
+        btn.onclick = (e) => {
+          highlightButton(e.currentTarget);
+          const option = e.currentTarget.textContent.trim();
+          
+          rAct.after_offensive_rebound = 1;
+          rAct.focus = option;
+          rAct.team_uuid = teamWithPossession === 1 ? homeId : awayId;
+          rAct.spain_role = spainBall() ? "OFFENSE" : (oppBall() ? "DEFENSE" : "NONE");
+            upsertAction();
+
+          if (option === "ACCIÓN TÁCTICA") {
+            // Acció tàctica va a triar sistemes directament
+            isPostReboundAction = false;
+            showPanel("sets");
+          } else {
+            // PUTBACK, TRIPLE, ROTACIÓN: Van a triar jugador implicat i després al resultat
+            posarJugadorsImplicatsPerRebot(option);
+          }
+        };
+      });
+    }
+
+    function posarJugadorsImplicatsPerRebot(focusText) {
+      showPanel("involvedPlayers");
+      
+      const players = teamWithPossession === 1 ? homePlayers : awayPlayers;
+      const onCourt = teamWithPossession === 1 ? homeInCourt : awayInCourt;
+
+      const handlerContainer = document.getElementById("handlerButtons");
+      if (handlerContainer) {
+        handlerContainer.innerHTML = "";
+        onCourt.forEach(idx => {
+          const player = players[idx];
+          if (!player) return;
+          const btn = document.createElement("button");
+          btn.textContent = `#${player.shirt_number || player.number}`;
+          btn.onclick = (e) => {
+            highlightButton(e.currentTarget);
+            rAct.handler_uuid = player.uuid;
+            
+            // Un poc triat el jugador, anem DIRECTE al panell de resultat
+            posarFinalInformation();
+          };
+          handlerContainer.appendChild(btn);
+        });
+      }
+
+      // Amaguem o netegem la part de roller/bloquejador si no cal per post-rebot
+      const screenerContainer = document.getElementById("screenerButtons");
+      if (screenerContainer) screenerContainer.innerHTML = "<p style='color:var(--text-muted); font-size:0.85rem;'>No necessari per a aquesta acció</p>";
+    }
+
+function posarJugadorsImplicats(fromRebound = false, focusText = null) {
+      showPanel("involvedPlayers");
+      restaurarInvolvedPlayersUI(); // Assegurar que es mostra tot per al flux normal
+
+      if (fromRebound && focusText) {
+        rAct.focus = focusText;
+        rAct.team_uuid = teamWithPossession === 1 ? homeId : awayId;
+        rAct.spain_role = spainBall() ? "OFFENSE" : (oppBall() ? "DEFENSE" : "NONE");
+      }
+
+      renderInvolvedButtons();
+    }
+
+    function posarJugadorsImplicatsPerRebot(focusText) {
+      showPanel("showPanel" in window ? "involvedPlayers" : "involvedPlayers");
+      document.getElementById("involvedPlayers")?.classList.remove("hidden");
+
+      const players = teamWithPossession === 1 ? homePlayers : awayPlayers;
+      const onCourt = teamWithPossession === 1 ? homeInCourt : awayInCourt;
+
+      // 1. Només mostrem el títol principal i activem els jugadors a la columna esquerra
+      const handlerContainer = document.getElementById("handlerButtons");
+      if (handlerContainer) {
+        handlerContainer.innerHTML = "";
+        onCourt.forEach(idx => {
+          const player = players[idx];
+          if (!player) return;
+          const btn = document.createElement("button");
+          btn.textContent = `#${player.shirt_number || player.number}`;
+          btn.onclick = (e) => {
+            highlightButton(e.currentTarget);
+            rAct.handler_uuid = player.uuid;
+            
+            // Un cop triat el jugador, anem directament al resultat
+            posarFinalInformation();
+          };
+          handlerContainer.appendChild(btn);
+        });
+      }
+
+      // 2. Amaguem completament la columna dreta (detalls tècnics i bloquejador) perquè no fan falta
+      const screenerContainer = document.getElementById("screenerButtons");
+      if (screenerContainer) screenerContainer.innerHTML = "";
+
+      const techGrid = document.querySelector("#involvedPlayers .tech-details-grid");
+      if (techGrid) techGrid.style.display = "none";
+
+      const techSpacer = document.querySelector("#involvedPlayers .tech-details-spacer");
+      if (techSpacer) techSpacer.style.display = "none";
+
+      const secondColumnTitle = document.querySelector("#involvedPlayers .involved-column:nth-child(2) h4");
+      if (secondColumnTitle) secondColumnTitle.style.display = "none";
+    }
+
+    function restaurarInvolvedPlayersUI() {
+      // Torna a mostrar els elements tècnics per al flux normal de PnR
+      const techGrid = document.querySelector("#involvedPlayers .tech-details-grid");
+      if (techGrid) techGrid.style.display = "grid";
+
+      const techSpacer = document.querySelector("#involvedPlayers .tech-details-spacer");
+      if (techSpacer) techSpacer.style.display = "block";
+
+      const secondColumnTitle = document.querySelector("#involvedPlayers .involved-column:nth-child(2) h4");
+      if (secondColumnTitle) secondColumnTitle.style.display = "block";
+    }
+
+
+
+
+function setupFastbreakButtons() {
+      document.querySelectorAll("#fastbreakSection .fb-btn").forEach(btn => {
+        btn.onclick = (e) => {
+          highlightButton(e.currentTarget);
+          const fbOption = e.currentTarget.textContent.trim();
+          
+          rAct.fastbreak = fbOption;
+          
+          // Canviem la possessió real en seleccionar l'opció de contraatac
+          teamWithPossession = temporaryReboundTeam;
+          selectPossession(teamWithPossession);
+ upsertAction();
+
+          if (fbOption === "No") {
+           
+            showPanel("sets");
+          } else if (fbOption === "Falta") {
+            // SI CLICO FALTA AL CONTRAATAC -> VA DIRECTE A LA PANTALLA DE FALTES
+            showPanel("foulInformation");
+          } else {
+            posarJugadorsImplicatsPerRebot(`Fastbreak: ${fbOption}`);
+          }
+        };
+      });
+    }
+
+    // Assegura't també que el botó "PF" del menú de resultats generals porti directe a la falta
+function setupFoulButtons() {
+      document.querySelectorAll("#foulInformation .foul-btn").forEach(btn => {
+        btn.onclick = (e) => {
+          highlightButton(e.currentTarget);
+          const foulType = e.currentTarget.textContent.trim();
+          
+          // Guardem el tipus de falta a l'objecte de l'acció
+          rAct.result = foulType;
+
+          if (foulType === "FALTA SIN TIROS") {
+            // Si és sense tirs, guardem l'acció i tornem a l'inici (sets)
+            isPostReboundAction = false;
+            upsertAction();
+            showPanel("sets");
+          } else {
+            setupFtReboundCountButtons();
+            // O pots mostrar directament el panell o secció de tirs lliures / rebot associat
+          }
+        };
+      });
+    }
+
+
+function showFtReboundTeamOptions() {
+      const ftTeamSection = document.getElementById("ftReboundTeamSection");
+      if (ftTeamSection) {
+        ftTeamSection.classList.remove("hidden");
+        
+        // Actualitzem dinàmicament els textos dels botons amb els noms reals dels equips
+        const homeBtnText = ftTeamSection.querySelector('[data-team="home"]');
+        const awayBtnText = ftTeamSection.querySelector('[data-team="away"]');
+        
+        if (homeBtnText) homeBtnText.textContent = homeName;
+        if (awayBtnText) awayBtnText.textContent = awayName;
+      }
+
+      // Configurem els botons d'aquesta secció
+      document.querySelectorAll(".ft-reb-team-btn").forEach(btn => {
+        btn.onclick = (e) => {
+          highlightButton(e.currentTarget);
+          const choice = e.currentTarget.getAttribute("data-team");
+
+          if (choice === "none") {
+            // --- NO REBOT ---
+            teamWithPossession = teamWithPossession === 1 ? 2 : 1;
+            rAct.rebound_team_uuid = null;
+            rAct.after_offensive_rebound = 0;
+            
+            upsertAction();
+            hideFoulAndResetPanels();
+            showPanel("sets");
+
+          } else {
+            // --- UN DELS DOS EQUIPS ---
+            const winningTeamNum = choice === "home" ? 1 : 2;
+            temporaryFoulReboundTeam = winningTeamNum;
+            rAct.rebound_team_uuid = winningTeamNum === 1 ? homeId : awayId;
+
+            if (winningTeamNum === teamWithPossession) {
+              // Rebot d'atac -> Obre acció posterior
+              isPostReboundAction = true;
+              rAct.after_offensive_rebound = 1;
+              hideFoulAndResetPanels();
+              
+              const post = document.getElementById("posteriorActionSection");
+              if (post) {
+                post.classList.remove("hidden");
+                setupReboundActions();
+              }
+            } else {
+              // Rebot defensiu -> Obre contraatac
+              isPostReboundAction = false;
+              hideFoulAndResetPanels();
+              
+              const fb = document.getElementById("fastbreakSection");
+              if (fb) {
+                fb.classList.remove("hidden");
+                setupFastbreakButtons(temporaryFoulReboundTeam);
+              }
+            }
+          }
+        };
+      });
+    }
+
+    function hideFoulAndResetPanels() {
+      document.getElementById("foulInformation")?.classList.add("hidden");
+      document.getElementById("isThereRebound")?.classList.add("hidden");
+      document.getElementById("reboundPeopleFt")?.classList.add("hidden");
+      document.getElementById("ftReboundTeamSection")?.classList.add("hidden");
+    }
+
+
+function setupFtReboundCountButtons() {
+      const reboundPeopleSection = document.getElementById("reboundPeopleFt");
+      if (reboundPeopleSection) {
+        reboundPeopleSection.classList.remove("hidden");
+      }
+
+      document.querySelectorAll(".reb-people-btn").forEach(btn => {
+        btn.onclick = (e) => {
+          highlightButton(e.currentTarget);
+          
+          // Guardem el nombre de jugadors al rebot a l'objecte de l'acció
+          rAct.players_to_rebound = e.currentTarget.textContent.trim();
+
+          // Un cop seleccionat el nombre, passem automàticament a triar l'equip
+          showFtReboundTeamOptions();
+        };
+      });
+    }
+  </script>
+</body>
+</html>
