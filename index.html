@@ -537,17 +537,17 @@
 
     <!-- PANTALLA CREACIÓ / SELECCIÓ DE PARTIT -->
     <section id="newGameInfoLayout" class="panel">
-      <h2>Informació del Partit</h2>
+      <h2>Información del partido</h2>
 
       <div class="form-container">
         <!-- Fila Equip Local + Color -->
         <div class="form-row">
           <div class="form-group flex-3">
-            <label for="homeTeamInput">Equip Local:</label>
-            <input type="text" id="homeTeamInput" placeholder="Nom equip local" />
+            <label for="homeTeamInput">Equipo local:</label>
+            <input type="text" id="homeTeamInput" />
           </div>
           <div class="form-group flex-1">
-            <label for="colorHome">Color Local:</label>
+            <label for="colorHome">Color local:</label>
             <input type="color" id="colorHome" value="#ff0000" class="color-picker-input" />
           </div>
         </div>
@@ -555,11 +555,11 @@
         <!-- Fila Equip Visitant + Color -->
         <div class="form-row">
           <div class="form-group flex-3">
-            <label for="awayTeamInput">Equip Visitant:</label>
-            <input type="text" id="awayTeamInput" placeholder="Nom equip visitant" />
+            <label for="awayTeamInput">Equipo visitante:</label>
+            <input type="text" id="awayTeamInput" />
           </div>
           <div class="form-group flex-1">
-            <label for="colorAway">Color Visitant:</label>
+            <label for="colorAway">Color visitante:</label>
             <input type="color" id="colorAway" value="#0000ff" class="color-picker-input" />
           </div>
         </div>
@@ -567,31 +567,31 @@
         <!-- Fila Competició + Jornada/Ronda -->
         <div class="form-row">
           <div class="form-group flex-1">
-            <label for="competition">Competició:</label>
-            <input type="text" id="competition" placeholder="Ex: Lliga Catalana" />
+            <label for="competition">Competición:</label>
+            <input type="text" id="competition" />
           </div>
           <div class="form-group flex-1">
-            <label for="round">Jornada / Ronda:</label>
-            <input type="text" id="round" placeholder="Ex: Jornada 5" />
+            <label for="round">Ronda:</label>
+            <input type="text" id="round" />
           </div>
         </div>
 
         <!-- Fila Pista + Data i Hora -->
         <div class="form-row">
           <div class="form-group flex-1">
-            <label for="court">Pista / Pavelló:</label>
-            <input type="text" id="court" placeholder="Nom del pavelló" />
+            <label for="court">Pista:</label>
+            <input type="text" id="court"  />
           </div>
           <div class="form-group flex-1">
-            <label for="gameDate">Data i Hora:</label>
+            <label for="gameDate">Fecha:</label>
             <input type="datetime-local" id="gameDate" />
           </div>
         </div>
 
         <!-- Botons d'acció -->
         <div class="actions-row">
-          <button onclick="resetGameForm()">Nou Partit</button>
-          <button onclick="confirmGameInfo()" style="background-color: #008cba;">Confirmar i Anar al Partit</button>
+          <button onclick="resetGameForm()">Nuevo partido</button>
+          <button onclick="confirmGameInfo()" style="background-color: #008cba;">Confirmar e ir al partido</button>
         </div>
       </div>
 
@@ -610,12 +610,12 @@
       <section class="court-players">
         <div id="homeCourt" class="court-group"></div>
         <div id="awayCourt" class="court-group"></div>
-        <button onclick="showAllSubstitutionThings()">Canvis</button>
+        <button onclick="showAllSubstitutionThings()">Cambios</button>
       </section>
 
       <!-- 1. Sistemes / Focus -->
       <section id="sets" class="panel hidden">
-        <h3>Focus d'atac</h3>
+        <h3>Spacing de ataque</h3>
         <div class="attack-focus-wrapper">
           <div class="focus-row pnr-row">
             <button type="button" class="set-btn">PnR +0</button>
@@ -626,16 +626,16 @@
           </div>
 
           <div class="focus-row other-row">
-            <button type="button" class="set-btn pos-1">FBK</button>
+            <button type="button" class="set-btn pos-1">FASTBREAK</button>
             <button type="button" class="set-btn pos-3">OOB</button>
-            <button type="button" class="set-btn pos-5">ESP</button>
+            <button type="button" class="set-btn pos-5">OTROS</button>
           </div>
         </div>
       </section>
 
       <!-- 2. Transició -->
       <section id="transitionScreen" class="panel hidden">
-        <h3>Arriba en Transició?</h3>
+        <h3>Tipo de bloqueo</h3>
         <div class="transition-buttons-row">
           <button type="button" class="trans-btn" data-val="transicion">Transición</button>
           <button type="button" class="trans-btn" data-val="estatico">Estático</button>
@@ -644,16 +644,16 @@
 
       <!-- 3. Secció Jugadors Implicats -->
       <section id="involvedPlayers" class="panel hidden">
-        <h3>Jugadors Implicats</h3>
+        <h3>Jugadores implicados</h3>
         
         <div class="involved-columns-container">
           <div class="involved-column">
-            <h4>Handler</h4>
+            <h4>Manejador</h4>
             <div id="handlerButtons" class="players-stack"></div>
           </div>
 
           <div class="involved-column">
-            <h4>Roller / Bloquejador</h4>
+            <h4>Bloqueador</h4>
             <div id="screenerButtons" class="players-stack"></div>
 
             <div class="tech-details-spacer"></div>
@@ -670,13 +670,13 @@
 
       <!-- 4. Tàctica defensiva -->
       <section id="defense" class="panel hidden">
-        <h3>Defensa PnR</h3>
+        <h3>Defensa P&R</h3>
         <div id="defenseButtons" class="grid-buttons"></div>
       </section>
 
       <!-- 5. Següent acció -->
       <section id="nextAction" class="panel hidden">
-        <h3>Següent Acció</h3>
+        <h3>Acción tras P&R</h3>
         <div class="grid-buttons">
           <button class="next-btn">SHORT ROLL</button>
           <button class="next-btn">DEEP ROLL</button>
@@ -690,11 +690,11 @@
 
       <!-- 6. Informació Final de la possessió -->
       <section id="finalInformation" class="panel hidden">
-        <h3>Resultat de l'Acció</h3>
+        <h3>Resultado</h3>
         
         <div class="final-questions-grid">
           <div class="final-question-card">
-            <span class="question-label">Avantatge Generat?</span>
+            <span class="question-label">Ventaja generada</span>
             <div class="binary-btn-group">
               <button type="button" class="adv-btn">Sí</button>
               <button type="button" class="adv-btn">No</button>
@@ -702,7 +702,7 @@
           </div>
 
           <div class="final-question-card">
-            <span class="question-label">Bona Selecció de Tir?</span>
+            <span class="question-label">Tiro elegido</span>
             <div class="binary-btn-group">
               <button type="button" class="shot-btn">Sí</button>
               <button type="button" class="shot-btn">No</button>
@@ -711,7 +711,7 @@
         </div>
 
         <div class="rebound-count-wrapper">
-          <span class="question-label">Jugadors al Rebot:</span>
+          <span class="question-label">Jugadores al rebote:</span>
           <div id="rebCountButtons" class="reb-full-width-group">
             <button type="button" class="c-reb-btn">0</button>
             <button type="button" class="c-reb-btn">1</button>
@@ -738,17 +738,17 @@
 
       <!-- 7. Faltes -->
       <section id="foulInformation" class="panel hidden">
-        <h3>Informació de la Falta</h3>
+        <h3>Información de la falta</h3>
         <div class="grid-buttons">
           <button class="foul-btn">2+1</button>
           <button class="foul-btn">3+1</button>
-          <button class="foul-btn">TIRS LLIURES</button>
+          <button class="foul-btn">FALTA DE TIRO</button>
           <button class="foul-btn">FALTA SIN TIROS</button>
         </div>
 
 <!-- Selecció del nombre de jugadors al rebot del tir lliure -->
     <div id="reboundPeopleFt" class="hidden" style="margin-top: 16px;">
-      <span class="question-label" style="display: block; margin-bottom: 8px;">Quants jugadors van al rebot?</span>
+      <span class="question-label" style="display: block; margin-bottom: 8px;">Jugadores al rebote:</span>
       <div class="full-width-btn-group grid-buttons">
         <button type="button" class="reb-people-btn">0</button>
         <button type="button" class="reb-people-btn">1</button>
@@ -761,11 +761,11 @@
 
         <!-- Dins de foulInformation, afegim l'apartat de l'equip del rebot de tirs lliures -->
     <div id="ftReboundTeamSection" class="hidden" style="margin-top: 16px;">
-      <span class="question-label" style="display: block; margin-bottom: 8px;">Qui agafa el rebot del tir lliure?</span>
+      <span class="question-label" style="display: block; margin-bottom: 8px;">Rebote</span>
       <div class="full-width-btn-group grid-3col">
         <button type="button" class="ft-reb-team-btn" data-team="home">Local</button>
         <button type="button" class="ft-reb-team-btn" data-team="away">Visitant</button>
-        <button type="button" class="ft-reb-team-btn" data-team="none">No Rebot</button>
+        <button type="button" class="ft-reb-team-btn" data-team="none">Canasta / no rebote</button>
       </div>
     </div>
       </section>
@@ -774,7 +774,7 @@
       <section id="reboundInformation" class="panel hidden">
         <h3>Rebot</h3>
         <div class="rebound-card">
-          <span class="question-label">Equip que agafa el rebot:</span>
+          <span class="question-label">Rebote:</span>
           <div class="full-width-btn-group">
             <button type="button" id="reboundHomeBtn" class="reb-team-btn"></button>
             <button type="button" id="reboundAwayBtn" class="reb-team-btn"></button>
@@ -784,18 +784,18 @@
 
       <!-- 8A. Acció Posterior (NOMÉS REBOT D'ATAC) -->
       <section id="posteriorActionSection" class="panel hidden">
-        <h3>Acció Posterior (Rebot Ofensiu)</h3>
+        <h3>Acción posterior (rebote ofensivo)</h3>
         <div class="full-width-btn-group grid-2col">
           <button type="button" class="reb-act-btn">PUTBACK</button>
           <button type="button" class="reb-act-btn">TRIPLE</button>
           <button type="button" class="reb-act-btn">ACCIÓN TÁCTICA</button>
-          <button type="button" class="reb-act-btn">ROTACIÓN</button>
+          <button type="button" class="reb-act-btn">JUEGO ROTO</button>
         </div>
       </section>
 
       <!-- 8B. Contraatac (NOMÉS REBOT DEFENSIU) -->
       <section id="fastbreakSection" class="panel hidden">
-        <h3>Contraatac?</h3>
+        <h3>Contraataque (rebote defensivo)</h3>
         <div class="full-width-btn-group grid-3col">
           <button type="button" class="fb-btn">Sí</button>
           <button type="button" class="fb-btn">Falta</button>
@@ -807,15 +807,14 @@
 
     <!-- Gestió d'alineacions / Substitucions -->
     <section id="substitutionsLayout" class="panel hidden">
-      <h2>Substitucions</h2>
+      <h2>Cambios</h2>
       <div class="subs-columns">
         <div id="homeSubstitutions" class="sub-column"></div>
         <div id="awaySubstitutions" class="sub-column"></div>
       </div>
       <div class="actions-row">
-        <button id="confirmSubsBtn" onclick="confirmSubs()">Confirmar Quintets</button>
-        <button id="undoSubsBtn" onclick="undoSubs()" disabled>Desfer Substitucions</button>
-        <button onclick="hideAllSubstitutionThings()" style="background-color: #555;">Cancel·lar</button>
+        <button id="confirmSubsBtn" onclick="confirmSubs()">Confirmar quintetos</button>
+        <button onclick="hideAllSubstitutionThings()" style="background-color: #555;">Cancelar cambios</button>
       </div>
     </section>
 
@@ -1127,7 +1126,6 @@
 
       try {
         const response = await supabaseFetch("actions", "POST", payload);
-        console.log("Acció guardada correctament:", response);
         if (response) idInGame++;
       } catch (error) {
         console.error("Error guardant l'acció:", error);
